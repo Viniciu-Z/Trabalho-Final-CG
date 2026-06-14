@@ -4,7 +4,6 @@ export function getGL(canvas)
 
     if(gl)
         return gl;
-
     gl = canvas.getContext("experimental-webgl");
 
     if(gl)

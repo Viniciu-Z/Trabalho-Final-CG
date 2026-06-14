@@ -1,33 +1,56 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Passeio Virtual 3D</title>
+<meta charset="UTF-8">
+<title>Passeio Virtual 3D</title>
 
-    <script id="vertex-shader" type="notjs">
-    attribute vec3 position;
+<!-- Vertex Shader -->
+<script id="vertex-shader" type="notjs">
 
-    void main()
-    {
-        gl_Position = vec4(position, 1.0);
-    }
-    </script>
+attribute vec3 position;
+attribute vec4 color;
 
-    <script id="frag-shader" type="notjs">
-    precision mediump float;
+uniform mat4 transf;
+uniform float df;
 
-    void main()
-    {
-        gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
-    }
-    </script>
+varying vec4 v_color;
+
+void main()
+{
+    v_color = color;
+
+    gl_Position = transf * vec4(position, 1.0);
+
+    gl_Position.w = 1.0 + gl_Position.z / df;
+}
+
+</script>
+
+<!-- Fragment Shader -->
+<script id="frag-shader" type="notjs">
+
+precision mediump float;
+
+varying vec4 v_color;
+
+void main()
+{
+    gl_FragColor = v_color;
+}
+
+</script>
+
 </head>
 
 <body>
 
-    <canvas id="glcanvas1" width="800" height="600"></canvas>
+<canvas id="glcanvas1"
+        width="800"
+        height="600">
+</canvas>
 
-    <script type="module" src="main.js"></script>
+<script type="module" src="main.js"></script>
 
 </body>
 </html>
