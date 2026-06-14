@@ -41,10 +41,5 @@ export function criarCenario(gl, prog, df)
 
     gl.vertexAttribPointer(color, 4, gl.FLOAT, false, 7 * 4, 3 * 4);
 
-    // DF
-    const dfPtr =gl.getUniformLocation(prog, "df");
-
-    gl.uniform1f(dfPtr, df);
-
     return {quantidadeVertices: 12};
 }

@@ -1,12 +1,11 @@
 import {getGL, createShader, createProgram} from "./utils.js";
 import {criarCenario} from "./cenario.js";
+import {getViewProjection} from "./camera.js";
+import {multiply, rotationX, rotationY, rotationZ} from "./math.js";
 
 let gl;
 let prog;
-
 let angle = 0;
-let df = 2.0;
-
 let cenario;
 
 function init()
@@ -18,66 +17,66 @@ function init()
     if (!gl)
         return;
 
+
     // SHADERS
     const vertexSource = document.getElementById("vertex-shader").text;
     const fragmentSource = document.getElementById("frag-shader").text;
 
     const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexSource);
-    const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER,fragmentSource);
-    prog = createProgram(gl, vertexShader, fragmentShader);
+    const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentSource);
 
+    prog = createProgram(gl, vertexShader, fragmentShader);
     gl.useProgram(prog);
 
-    // WEBGL
+    // CONFIGURAÇÃO WEBGL
     gl.viewport(0, 0, canvas.width, canvas.height);
-
-    gl.clearColor(0, 0, 0, 1);
-
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(gl.DEPTH_TEST);
 
     // CENÁRIO
-    cenario = criarCenario(gl, prog, df);
+    cenario = criarCenario(gl, prog);
 
+    // LOOP
     requestAnimationFrame(draw);
 }
 
 function draw()
 {
-    const rad = angle * Math.PI / 180;
+    // MATRIZES DA CÂMERA
+    const {proj, view} = getViewProjection(gl.canvas);
 
-    const matrizRotacao = [
+    // ROTAÇÕES
+    const rad = angle * Math.PI / 180.0;
 
-        Math.cos(rad),
-        0,
-        -Math.sin(rad),
-        0,
+    const rotX = rotationX(rad);
 
-        0,
-        1,
-        0,
-        0,
+    const rotY = rotationY(rad);
 
-        Math.sin(rad),
-        0,
-        Math.cos(rad),
-        0,
+    const rotZ = rotationZ(rad);
 
-        0,
-        0,
-        0,
-        1
-    ];
+    // MODEL MATRIX
+    let model = multiply(rotY, rotX);
 
-    const transf = gl.getUniformLocation(prog, "transf");
+    model = multiply(rotZ, model);
 
-    gl.uniformMatrix4fv(transf, false, matrizRotacao);
+    // MVP
+    let transforma = multiply(view, model);
+    transforma = multiply(proj, transforma);
 
+    // ENVIA MATRIZ AO SHADER
+    const transfPtr = gl.getUniformLocation(prog, "transf");
+
+    gl.uniformMatrix4fv(transfPtr, false, new Float32Array(transforma));
+
+    // LIMPA TELA
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    // DESENHA CENÁRIO
 
     gl.drawArrays(gl.TRIANGLES, 0, cenario.quantidadeVertices);
 
-    angle++;
-
+    // ANIMAÇÃO
+    angle += 1;
     requestAnimationFrame(draw);
 }
 
