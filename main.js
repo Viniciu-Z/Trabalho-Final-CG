@@ -2,6 +2,7 @@ import {getGL, createShader, createProgram} from "./utils.js";
 import {criarCenario} from "./cenario.js";
 import {getViewProjection} from "./camera.js";
 import {multiply, rotationX, rotationY, rotationZ} from "./math.js";
+import {initInput, updateMovement} from "./input.js";
 
 let gl;
 let prog;
@@ -13,6 +14,7 @@ function init()
     const canvas = document.getElementById("glcanvas1");
 
     gl = getGL(canvas);
+    initInput(canvas);
 
     if (!gl)
         return;
@@ -42,6 +44,7 @@ function init()
 
 function draw()
 {
+    updateMovement();
     // MATRIZES DA CÂMERA
     const {proj, view} = getViewProjection(gl.canvas);
 
