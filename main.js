@@ -1,86 +1,229 @@
-import {getGL, createShader, createProgram} from "./utils.js";
-import {criarCenario} from "./cenario.js";
-import {getViewProjection} from "./camera.js";
-import {multiply, rotationX, rotationY, rotationZ} from "./math.js";
-import {initInput, updateMovement} from "./input.js";
+import {
+    getGL,
+    createShader,
+    createProgram
+} from "./Utils.js";
+
+import {
+    cenario,
+    criarSala
+}
+from "./cenario.js";
+
+import {
+    rotationX,
+    rotationY,
+    rotationZ,
+    multiply
+}
+from "./math.js";
+
+import {
+    getViewProjection
+}
+from "./camera.js";
+
+import {
+    initInput,
+    updateMovement
+}
+from "./input.js";
 
 let gl;
 let prog;
-let angle = 0;
-let cenario;
 
 function init()
 {
-    const canvas = document.getElementById("glcanvas1");
+    const canvas =
+        document.getElementById(
+            "glcanvas1"
+        );
 
     gl = getGL(canvas);
-    initInput(canvas);
 
-    if (!gl)
+    if(!gl)
         return;
 
+    const vtxShader =
+    createShader(
+        gl,
+        gl.VERTEX_SHADER,
+        document.getElementById("vertex-shader").text
+    );
 
-    // SHADERS
-    const vertexSource = document.getElementById("vertex-shader").text;
-    const fragmentSource = document.getElementById("frag-shader").text;
+    const fragShader =
+        createShader(
+            gl,
+            gl.FRAGMENT_SHADER,
+            document.getElementById("frag-shader").text
+        );
 
-    const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexSource);
-    const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentSource);
+    prog =
+        createProgram(
+            gl,
+            vtxShader,
+            fragShader
+        );
 
-    prog = createProgram(gl, vertexShader, fragmentShader);
     gl.useProgram(prog);
 
-    // CONFIGURAÇÃO WEBGL
-    gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.enable(gl.DEPTH_TEST);
+    //----------------------------------
+    // Sala
+    //----------------------------------
 
-    // CENÁRIO
-    cenario = criarCenario(gl, prog);
+    criarSala(
+        50,
+        15,
+        50
+    );
 
-    // LOOP
-    requestAnimationFrame(draw);
+    //----------------------------------
+    // Buffer
+    //----------------------------------
+
+    const buffer =
+        gl.createBuffer();
+
+    gl.bindBuffer(
+        gl.ARRAY_BUFFER,
+        buffer
+    );
+
+    gl.bufferData(
+        gl.ARRAY_BUFFER,
+        new Float32Array(
+            cenario.vertices
+        ),
+        gl.STATIC_DRAW
+    );
+
+    //----------------------------------
+    // Posição
+    //----------------------------------
+
+    const position =
+        gl.getAttribLocation(
+            prog,
+            "position"
+        );
+
+    gl.vertexAttribPointer(
+        position,
+        3,
+        gl.FLOAT,
+        false,
+        7 * 4,
+        0
+    );
+
+    gl.enableVertexAttribArray(
+        position
+    );
+
+    //----------------------------------
+    // Cor
+    //----------------------------------
+
+    const color =
+        gl.getAttribLocation(
+            prog,
+            "color"
+        );
+
+    gl.vertexAttribPointer(
+        color,
+        4,
+        gl.FLOAT,
+        false,
+        7 * 4,
+        3 * 4
+    );
+
+    gl.enableVertexAttribArray(
+        color
+    );
+
+    //----------------------------------
+
+    gl.enable(
+        gl.DEPTH_TEST
+    );
+
+    gl.clearColor(
+        0.1,
+        0.1,
+        0.1,
+        1
+    );
+
+    initInput(canvas);
+
+    draw();
 }
 
 function draw()
 {
     updateMovement();
-    // MATRIZES DA CÂMERA
-    const {proj, view} = getViewProjection(gl.canvas);
 
-    // ROTAÇÕES
-    const rad = angle * Math.PI / 180.0;
+    const {
+        proj,
+        view
+    } =
+    getViewProjection(
+        gl.canvas
+    );
 
-    const rotX = rotationX(rad);
+    //----------------------------------
+    // Sem rotação
+    //----------------------------------
 
-    const rotY = rotationY(rad);
+    const model = [
+        1,0,0,0,
+        0,1,0,0,
+        0,0,1,0,
+        0,0,0,1
+    ];
 
-    const rotZ = rotationZ(rad);
+    let transforma =
+        multiply(
+            view,
+            model
+        );
 
-    // MODEL MATRIX
-    let model = multiply(rotY, rotX);
+    transforma =
+        multiply(
+            proj,
+            transforma
+        );
 
-    model = multiply(rotZ, model);
+    const transf =
+        gl.getUniformLocation(
+            prog,
+            "transf"
+        );
 
-    // MVP
-    let transforma = multiply(view, model);
-    transforma = multiply(proj, transforma);
+    gl.uniformMatrix4fv(
+        transf,
+        false,
+        new Float32Array(
+            transforma
+        )
+    );
 
-    // ENVIA MATRIZ AO SHADER
-    const transfPtr = gl.getUniformLocation(prog, "transf");
+    gl.clear(
+        gl.COLOR_BUFFER_BIT |
+        gl.DEPTH_BUFFER_BIT
+    );
 
-    gl.uniformMatrix4fv(transfPtr, false, new Float32Array(transforma));
+    gl.drawArrays(
+        gl.TRIANGLES,
+        0,
+        cenario.quantidadeVertices
+    );
 
-    // LIMPA TELA
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    // DESENHA CENÁRIO
-
-    gl.drawArrays(gl.TRIANGLES, 0, cenario.quantidadeVertices);
-
-    // ANIMAÇÃO
-    angle += 1;
-    requestAnimationFrame(draw);
+    requestAnimationFrame(
+        draw
+    );
 }
 
 window.onload = init;

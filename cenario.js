@@ -1,45 +1,111 @@
-export function criarCenario(gl, prog, df)
+export const cenario = {
+    vertices: [],
+    quantidadeVertices: 0
+};
+
+function face(a, b, c, d, cor)
 {
-    const vertices = new Float32Array([
+    return [
 
-        // Frente
-        -0.5, -0.5, 0.5, 1,0,0,1,
-         0.5, -0.5, 0.5, 0,1,0,1,
-         0.5,  0.5, 0.5, 0,0,1,1,
+        ...a, ...cor,
+        ...b, ...cor,
+        ...c, ...cor,
 
-        -0.5, -0.5, 0.5, 1,0,0,1,
-         0.5,  0.5, 0.5, 0,0,1,1,
-        -0.5,  0.5, 0.5, 1,1,0,1,
+        ...a, ...cor,
+        ...c, ...cor,
+        ...d, ...cor
+    ];
+}
 
-        // Fundo
-        -0.5, -0.5,-0.5, 1,0,1,1,
-         0.5,  0.5,-0.5, 0,1,1,1,
-         0.5, -0.5,-0.5, 0,1,0,1,
+export function criarSala(
+    largura,
+    altura,
+    comprimento
+)
+{
+    const x = largura / 2;
+    const y = altura;
+    const z = comprimento / 2;
 
-        -0.5, -0.5,-0.5, 1,0,1,1,
-        -0.5,  0.5,-0.5, 1,1,1,1,
-         0.5,  0.5,-0.5, 0,1,1,1
-    ]);
+    const piso = [0.7,0.7,0.7,1];
+    const teto = [0.85,0.85,0.85,1];
+    const parede = [0.9,0.9,0.9,1];
 
-    const buffer = gl.createBuffer();
+    cenario.vertices = [
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        //----------------------------------
+        // Piso
+        //----------------------------------
 
-    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+        ...face(
+            [-x,0,-z],
+            [ x,0,-z],
+            [ x,0, z],
+            [-x,0, z],
+            piso
+        ),
 
-    // POSITION
-    const position = gl.getAttribLocation(prog, "position");
+        //----------------------------------
+        // Teto
+        //----------------------------------
 
-    gl.enableVertexAttribArray(position);
+        ...face(
+            [-x,y, z],
+            [ x,y, z],
+            [ x,y,-z],
+            [-x,y,-z],
+            teto
+        ),
 
-    gl.vertexAttribPointer(position, 3, gl.FLOAT, false, 7 * 4, 0);
+        //----------------------------------
+        // Parede Norte
+        //----------------------------------
 
-    // COLOR
-    const color = gl.getAttribLocation(prog, "color");
+        ...face(
+            [-x,0,-z],
+            [-x,y,-z],
+            [ x,y,-z],
+            [ x,0,-z],
+            parede
+        ),
 
-    gl.enableVertexAttribArray(color);
+        //----------------------------------
+        // Parede Sul
+        //----------------------------------
 
-    gl.vertexAttribPointer(color, 4, gl.FLOAT, false, 7 * 4, 3 * 4);
+        ...face(
+            [ x,0, z],
+            [ x,y, z],
+            [-x,y, z],
+            [-x,0, z],
+            parede
+        ),
 
-    return {quantidadeVertices: 12};
+        //----------------------------------
+        // Parede Oeste
+        //----------------------------------
+
+        ...face(
+            [-x,0, z],
+            [-x,y, z],
+            [-x,y,-z],
+            [-x,0,-z],
+            parede
+        ),
+
+        //----------------------------------
+        // Parede Leste
+        //----------------------------------
+
+        ...face(
+            [ x,0,-z],
+            [ x,y,-z],
+            [ x,y, z],
+            [ x,0, z],
+            parede
+        )
+    ];
+
+    cenario.quantidadeVertices =
+        cenario.vertices.length / 7;
 }
