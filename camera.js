@@ -1,10 +1,10 @@
 import {perspective, lookAt} from "./math.js";
 
 export const camera = {
-    pos: [5, 2, 5],
-    yaw: -135,
-    pitch: -20,
-    target: [0, 0, 0],
+    pos: [-20, 5, 0],
+    yaw: 0,
+    pitch: 0,
+    target: [5, 5, 0],
     up: [0, 1, 0],
     speed: 0.1
 };
