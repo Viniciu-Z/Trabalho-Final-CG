@@ -1,15 +1,24 @@
-export const cenario = {vertices: [], quantidadeVertices: 0};
+export const sala = {
+    vertices: [],
+    quantidadeVertices: 0
+};
 
-function face(a, b, c, d, cor){
+export const objetos = {
+    vertices: [],
+    quantidadeVertices: 0
+};
+
+function face(a, b, c, d, cor)
+{
     return [
 
-        ...a, ...cor,
-        ...b, ...cor,
-        ...c, ...cor,
+        ...a, ...cor, 0,1,
+        ...b, ...cor, 1,1,
+        ...c, ...cor, 1,0,
 
-        ...a, ...cor,
-        ...c, ...cor,
-        ...d, ...cor
+        ...a, ...cor, 0,1,
+        ...c, ...cor, 1,0,
+        ...d, ...cor, 0,0
     ];
 }
 
@@ -27,7 +36,7 @@ export function adicionarParalelepipedo(largura, altura, comprimento, x, y, z, c
     const z0 = z - lz;
     const z1 = z + lz;
 
-    cenario.vertices.push(
+    objetos.vertices.push(
 
         // Piso
         ...face(
@@ -85,17 +94,21 @@ export function adicionarParalelepipedo(largura, altura, comprimento, x, y, z, c
     );
 }
 
-export function criarSala(largura, altura, comprimento){
+export function criarSala(largura, altura, comprimento)
+{
     const x = largura;
     const y = altura;
     const z = comprimento;
 
     const piso = [0.7,0.7,0.7,1];
     const teto = [0.85,0.85,0.85,1];
-    const parede = [0.9,0.9,0.9,1];
+    const parede = [1,1,1,1];
     const pedestal = [0.55,0.55,0.55,1];
 
-    cenario.vertices = [
+    sala.vertices = [];
+    objetos.vertices = [];
+
+    sala.vertices.push(
 
         // Piso
         ...face(
@@ -150,7 +163,7 @@ export function criarSala(largura, altura, comprimento){
             [ x,0, z],
             parede
         )
-    ];
+    );
 
     adicionarParalelepipedo(10,1.5,10,0,0,0,pedestal);
     adicionarParalelepipedo(10,1.5,10,0,0,-40,pedestal);
@@ -158,5 +171,6 @@ export function criarSala(largura, altura, comprimento){
     adicionarParalelepipedo(10,1.5,10,-40,0,0,pedestal);
     adicionarParalelepipedo(10,1.5,10,40,0,0,pedestal);
 
-    cenario.quantidadeVertices = cenario.vertices.length / 7;
+    sala.quantidadeVertices = sala.vertices.length / 9;
+    objetos.quantidadeVertices = objetos.vertices.length / 9;
 }

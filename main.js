@@ -1,45 +1,96 @@
-import {getGL, createShader, createProgram} from "./Utils.js";
-import {cenario, criarSala} from "./cenario.js";
-import {rotationX, rotationY, rotationZ, multiply} from "./math.js";
-import {getViewProjection} from "./camera.js";
-import {initInput, updateMovement} from "./input.js";
+import { getGL, createShader, createProgram } from "./Utils.js";
+import { sala, objetos, criarSala } from "./cenario.js";
+import { getViewProjection } from "./camera.js";
+import { initInput, updateMovement } from "./input.js";
+import { loadTexture } from "./Texture.js";
+import { multiply } from "./math.js";
 
 let gl;
 let prog;
 
-function init(){
-    const canvas = document.getElementById("glcanvas1");
+let bufferSala;
+let bufferObjetos;
 
-    gl = getGL(canvas);
+let wallTexture;
 
-    if(!gl)
-        return;
-
-    const vtxShader = createShader(gl, gl.VERTEX_SHADER, document.getElementById("vertex-shader").text);
-    const fragShader = createShader(gl, gl.FRAGMENT_SHADER, document.getElementById("frag-shader").text);
-
-    prog = createProgram(gl, vtxShader, fragShader);
-    gl.useProgram(prog);
-
-    // Sala
-    criarSala(50, 15, 50);
-
-    // Buffer
-    const buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cenario.vertices), gl.STATIC_DRAW);
-
+function configurarAtributos()
+{
     // Posição
-    const position = gl.getAttribLocation(prog,"position");
-    gl.vertexAttribPointer(position, 3, gl.FLOAT, false, 7 * 4, 0);
+    const position = gl.getAttribLocation(prog, "position");
+    gl.vertexAttribPointer(position, 3, gl.FLOAT, false, 9 * 4, 0);
     gl.enableVertexAttribArray(position);
 
     // Cor
     const color = gl.getAttribLocation(prog, "color");
-    gl.vertexAttribPointer(color, 4, gl.FLOAT, false, 7 * 4, 3 * 4);
+    gl.vertexAttribPointer(color, 4, gl.FLOAT, false, 9 * 4, 3 * 4);
     gl.enableVertexAttribArray(color);
+
+    // Coordenadas de textura
+    const texCoord = gl.getAttribLocation(prog, "texCoord");
+    gl.vertexAttribPointer(texCoord, 2, gl.FLOAT, false, 9 * 4, 7 * 4);
+    gl.enableVertexAttribArray(texCoord);
+}
+
+function init()
+{
+    const canvas = document.getElementById("glcanvas1");
+
+    gl = getGL(canvas);
+
+    if (!gl)
+        return;
+
+    const vtxShader = createShader(
+        gl,
+        gl.VERTEX_SHADER,
+        document.getElementById("vertex-shader").text
+    );
+
+    const fragShader = createShader(
+        gl,
+        gl.FRAGMENT_SHADER,
+        document.getElementById("frag-shader").text
+    );
+
+    prog = createProgram(gl, vtxShader, fragShader);
+
+    gl.useProgram(prog);
+
+    // Cria a sala
+    criarSala(50, 15, 50);
+
+    // Carrega textura das paredes
+    wallTexture = loadTexture(gl, "img/textura_parede.jpeg");
+
+    //----------------------------
+    // Buffer da sala
+    //----------------------------
+    bufferSala = gl.createBuffer();
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferSala);
+
+    gl.bufferData(
+        gl.ARRAY_BUFFER,
+        new Float32Array(sala.vertices),
+        gl.STATIC_DRAW
+    );
+
+    //----------------------------
+    // Buffer dos objetos
+    //----------------------------
+    bufferObjetos = gl.createBuffer();
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferObjetos);
+
+    gl.bufferData(
+        gl.ARRAY_BUFFER,
+        new Float32Array(objetos.vertices),
+        gl.STATIC_DRAW
+    );
+
     gl.enable(gl.DEPTH_TEST);
     gl.clearColor(0.1, 0.1, 0.1, 1);
+
     initInput(canvas);
 
     draw();
@@ -49,7 +100,7 @@ function draw()
 {
     updateMovement();
 
-    const {proj, view} = getViewProjection(gl.canvas);
+    const { proj, view } = getViewProjection(gl.canvas);
 
     const model = [
         1,0,0,0,
@@ -58,14 +109,67 @@ function draw()
         0,0,0,1
     ];
 
-    let transforma = multiply(view, model);
-    transforma = multiply(proj, transforma);
+    const transforma = multiply(
+        proj,
+        multiply(view, model)
+    );
 
-    const transf = gl.getUniformLocation(prog, "transf");
+    gl.uniformMatrix4fv(
+        gl.getUniformLocation(prog, "transf"),
+        false,
+        new Float32Array(transforma)
+    );
 
-    gl.uniformMatrix4fv(transf, false,new Float32Array(transforma));
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.drawArrays(gl.TRIANGLES, 0, cenario.quantidadeVertices);
+
+    //------------------------------------
+    // DESENHA A SALA (COM TEXTURA)
+    //------------------------------------
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferSala);
+
+    configurarAtributos();
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, wallTexture);
+
+    gl.uniform1i(
+        gl.getUniformLocation(prog, "tex"),
+        0
+    );
+
+    // Diz ao shader para usar textura
+    gl.uniform1i(
+        gl.getUniformLocation(prog, "usarTextura"),
+        1
+    );
+
+    gl.drawArrays(
+        gl.TRIANGLES,
+        0,
+        sala.quantidadeVertices
+    );
+
+    //------------------------------------
+    // DESENHA OS PEDESTAIS (SEM TEXTURA)
+    //------------------------------------
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, bufferObjetos);
+
+    configurarAtributos();
+
+    // Diz ao shader para IGNORAR a textura
+    gl.uniform1i(
+        gl.getUniformLocation(prog, "usarTextura"),
+        0
+    );
+
+    gl.drawArrays(
+        gl.TRIANGLES,
+        0,
+        objetos.quantidadeVertices
+    );
+
     requestAnimationFrame(draw);
 }
 

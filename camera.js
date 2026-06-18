@@ -6,7 +6,7 @@ export const camera = {
     pitch: 0,
     target: [5, 5, 0],
     up: [0, 1, 0],
-    speed: 0.1
+    speed: 0.5
 };
 
 export function getViewProjection(canvas)

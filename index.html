@@ -10,18 +10,19 @@
 
 attribute vec3 position;
 attribute vec4 color;
+attribute vec2 texCoord;
 
 uniform mat4 transf;
 
-varying vec4 v_color;
+varying vec4 vColor;
+varying vec2 vTexCoord;
 
 void main()
 {
-    v_color = color;
+    vColor = color;
+    vTexCoord = texCoord;
 
-    gl_Position =
-        transf *
-        vec4(position, 1.0);
+    gl_Position = transf * vec4(position,1.0);
 }
 
 </script>
@@ -29,13 +30,22 @@ void main()
 <!-- Fragment Shader -->
 <script id="frag-shader" type="notjs">
 
-precision mediump float;
+uniform sampler2D tex;
+uniform bool usarTextura;
 
-varying vec4 v_color;
+varying vec4 vColor;
+varying vec2 vTexCoord;
 
 void main()
 {
-    gl_FragColor = v_color;
+    if (usarTextura)
+    {
+        gl_FragColor = texture2D(tex, vTexCoord);
+    }
+    else
+    {
+        gl_FragColor = vColor;
+    }
 }
 
 </script>
