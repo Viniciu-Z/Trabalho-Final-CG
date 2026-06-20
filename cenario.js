@@ -8,17 +8,16 @@ export const objetos = {
     quantidadeVertices: 0
 };
 
-function face(a, b, c, d, cor)
+function face(a, b, c, d, normal, cor)
 {
     return [
+        ...a, ...cor, 0,1, ...normal,
+        ...b, ...cor, 1,1, ...normal,
+        ...c, ...cor, 1,0, ...normal,
 
-        ...a, ...cor, 0,1,
-        ...b, ...cor, 1,1,
-        ...c, ...cor, 1,0,
-
-        ...a, ...cor, 0,1,
-        ...c, ...cor, 1,0,
-        ...d, ...cor, 0,0
+        ...a, ...cor, 0,1, ...normal,
+        ...c, ...cor, 1,0, ...normal,
+        ...d, ...cor, 0,0, ...normal
     ];
 }
 
@@ -44,6 +43,7 @@ export function adicionarParalelepipedo(largura, altura, comprimento, x, y, z, c
             [x1,y0,z0],
             [x1,y0,z1],
             [x0,y0,z1],
+            [0,-1,0],
             cor
         ),
 
@@ -53,6 +53,7 @@ export function adicionarParalelepipedo(largura, altura, comprimento, x, y, z, c
             [x1,y1,z1],
             [x1,y1,z0],
             [x0,y1,z0],
+            [0,1,0],
             cor
         ),
 
@@ -62,6 +63,7 @@ export function adicionarParalelepipedo(largura, altura, comprimento, x, y, z, c
             [x1,y0,z1],
             [x1,y1,z1],
             [x0,y1,z1],
+            [0,0,1],
             cor
         ),
 
@@ -71,6 +73,7 @@ export function adicionarParalelepipedo(largura, altura, comprimento, x, y, z, c
             [x0,y0,z0],
             [x0,y1,z0],
             [x1,y1,z0],
+            [0,0,-1],
             cor
         ),
 
@@ -80,6 +83,7 @@ export function adicionarParalelepipedo(largura, altura, comprimento, x, y, z, c
             [x0,y0,z1],
             [x0,y1,z1],
             [x0,y1,z0],
+            [-1,0,0],
             cor
         ),
 
@@ -89,6 +93,7 @@ export function adicionarParalelepipedo(largura, altura, comprimento, x, y, z, c
             [x1,y0,z0],
             [x1,y1,z0],
             [x1,y1,z1],
+            [1,0,0],
             cor
         )
     );
@@ -116,6 +121,7 @@ export function criarSala(largura, altura, comprimento)
             [ x,0,-z],
             [ x,0, z],
             [-x,0, z],
+            [0,1,0],
             piso
         ),
 
@@ -125,6 +131,7 @@ export function criarSala(largura, altura, comprimento)
             [ x,y, z],
             [ x,y,-z],
             [-x,y,-z],
+            [0,-1,0],
             teto
         ),
 
@@ -134,6 +141,7 @@ export function criarSala(largura, altura, comprimento)
             [-x,y,-z],
             [ x,y,-z],
             [ x,0,-z],
+            [0,0,-1],
             parede
         ),
 
@@ -143,6 +151,7 @@ export function criarSala(largura, altura, comprimento)
             [ x,y, z],
             [-x,y, z],
             [-x,0, z],
+            [0,0,1],
             parede
         ),
 
@@ -152,6 +161,7 @@ export function criarSala(largura, altura, comprimento)
             [-x,y, z],
             [-x,y,-z],
             [-x,0,-z],
+            [-1,0,0],
             parede
         ),
 
@@ -161,6 +171,7 @@ export function criarSala(largura, altura, comprimento)
             [ x,y,-z],
             [ x,y, z],
             [ x,0, z],
+            [1,0,0],
             parede
         )
     );
@@ -171,6 +182,6 @@ export function criarSala(largura, altura, comprimento)
     adicionarParalelepipedo(10,1.5,10,-40,0,0,pedestal);
     adicionarParalelepipedo(10,1.5,10,40,0,0,pedestal);
 
-    sala.quantidadeVertices = sala.vertices.length / 9;
-    objetos.quantidadeVertices = objetos.vertices.length / 9;
+    sala.quantidadeVertices = sala.vertices.length / 12;
+    objetos.quantidadeVertices = objetos.vertices.length / 12;
 }

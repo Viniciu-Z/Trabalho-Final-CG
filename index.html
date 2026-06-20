@@ -11,41 +11,90 @@
 attribute vec3 position;
 attribute vec4 color;
 attribute vec2 texCoord;
+attribute vec3 normal;
 
 uniform mat4 transf;
 
 varying vec4 vColor;
 varying vec2 vTexCoord;
 
+varying vec3 vNormal;
+varying vec3 vPosition;
+
 void main()
 {
+    gl_Position = transf * vec4(position, 1.0);
+
     vColor = color;
     vTexCoord = texCoord;
 
-    gl_Position = transf * vec4(position,1.0);
+    vNormal = normal;
+    vPosition = position;
 }
+
+</script>
 
 </script>
 
 <!-- Fragment Shader -->
 <script id="frag-shader" type="notjs">
 
-uniform sampler2D tex;
-uniform bool usarTextura;
+precision mediump float;
 
 varying vec4 vColor;
 varying vec2 vTexCoord;
 
+varying vec3 vNormal;
+varying vec3 vPosition;
+
+uniform sampler2D tex;
+uniform bool usarTextura;
+
+uniform vec3 campos;
+uniform vec3 lightpos;
+uniform vec3 lightDirection;
+uniform vec3 lightColor;
+
 void main()
 {
-    if (usarTextura)
-    {
-        gl_FragColor = texture2D(tex, vTexCoord);
-    }
+    // Cor base
+    vec4 baseColor;
+
+    if(usarTextura)
+        baseColor = texture2D(tex, vTexCoord);
     else
-    {
-        gl_FragColor = vColor;
-    }
+        baseColor = vColor;
+
+
+    // Normais
+    vec3 N = normalize(vNormal);
+
+    // Luz
+    vec3 L = normalize(lightpos - vPosition);
+
+    // Visão
+    vec3 V = normalize(campos - vPosition);
+
+    // Reflexão
+    vec3 R = reflect(-L, N);
+
+    // Ambiente
+    float Ka = 0.25;
+    vec3 ambiente = Ka * lightColor;
+
+    // Difusa (Lambert)
+    float Kd = 0.75;
+    float dif = max(dot(N, L), 0.0);
+    vec3 difusa = Kd * dif * lightColor;
+
+    // Especular (Phong)
+    float Ks = 0.45;
+    float brilho = 32.0;
+    float esp = pow(max(dot(R, V),0.0), brilho);
+    vec3 especular = Ks * esp * lightColor;
+
+    vec3 iluminacao = ambiente + difusa +especular;
+    gl_FragColor = vec4(baseColor.rgb * iluminacao, baseColor.a);
 }
 
 </script>
