@@ -61,7 +61,7 @@ function init()
     gl.useProgram(prog);
 
     // cria sala
-    criarSala(50, 30, 50);
+    criarSala(50, 30, 100);
 
     // textura
     wallTexture =loadTexture(gl, "img/madeira.jpeg");

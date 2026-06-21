@@ -176,11 +176,11 @@ export function criarSala(largura, altura, comprimento)
         )
     );
 
-    adicionarParalelepipedo(10,1.5,10,0,0,0,pedestal);
-    adicionarParalelepipedo(10,1.5,10,0,0,-40,pedestal);
-    adicionarParalelepipedo(10,1.5,10,0,0,40,pedestal);
-    adicionarParalelepipedo(10,1.5,10,-40,0,0,pedestal);
-    adicionarParalelepipedo(10,1.5,10,40,0,0,pedestal);
+    adicionarParalelepipedo(20, 2, 20, 0, 0, 0, pedestal);
+    adicionarParalelepipedo(20, 2, 20, 30, 0, 80, pedestal);
+    adicionarParalelepipedo(20, 2, 20, -30, 0, 80, pedestal);
+    adicionarParalelepipedo(20, 2, 20, 30, 0, -80, pedestal);
+    adicionarParalelepipedo(20, 2, 20, -30, 0, -80, pedestal);
 
     sala.quantidadeVertices = sala.vertices.length / 12;
     objetos.quantidadeVertices = objetos.vertices.length / 12;

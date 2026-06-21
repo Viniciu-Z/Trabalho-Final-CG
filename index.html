@@ -71,6 +71,13 @@ void main()
 
     // Luz
     vec3 L = normalize(lightpos - vPosition);
+    float theta = dot(
+
+        normalize(-L),
+
+        normalize(lightDirection)
+
+    );
 
     // Visão
     vec3 V = normalize(campos - vPosition);
