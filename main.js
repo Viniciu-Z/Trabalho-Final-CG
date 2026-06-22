@@ -3,8 +3,8 @@ import { sala, objetos, criarSala } from "./cenario.js";
 import { getViewProjection, camera } from "./camera.js";
 import { initInput, updateMovement } from "./input.js";
 import { loadTexture } from "./Texture.js";
-import { multiply, translation, scaling, rotationX } from "./math.js";
-import { loadOBJ } from "./OBJLoader.js"; // Mantido loadOBJ para uso interno
+import { multiply, translation, scaling, rotationX, rotationY } from "./math.js";
+import { loadOBJ } from "./OBJLoader.js"; 
 
 let gl;
 let prog;
@@ -12,6 +12,8 @@ let prog;
 let bufferSala;
 let bufferObjetos;
 let wallTexture;
+
+let tempoAnimacao = 0;
 
 const modelos = [];
 
@@ -58,6 +60,7 @@ async function carregarModelosCenario(gl, lista) {
     
     for (const config of lista) {
         const obj = await loadOBJ(gl, config.path);
+        obj.path = config.path;
         
         // Aplica transformações e propriedades base
         obj.position = config.position || [0, 0, 0];
@@ -103,10 +106,23 @@ function configurarAtributos() {
 function desenharOBJ(obj) {
     const { proj, view } = getViewProjection(gl.canvas);
 
+    let posicao = [...obj.position];
+    let rotacao = null;
+
+    // Apenas a Skull será animada
+    if (obj.path && obj.path.includes("Skull")) {
+
+        // movimento de sobe e desce
+        posicao[1] += Math.sin(tempoAnimacao) * 0.4;
+
+        // rotação contínua
+        rotacao = rotationY(tempoAnimacao);
+    }
+
     const T = translation(
-        obj.position[0],
-        obj.position[1],
-        obj.position[2]
+        posicao[0],
+        posicao[1],
+        posicao[2]
     );
 
     const S = scaling(
@@ -115,7 +131,13 @@ function desenharOBJ(obj) {
         obj.scale[2]
     );
 
-    const model = multiply(T, S);
+    let model;
+
+    if(rotacao){
+        model = multiply(T, multiply(rotacao, S));
+    }else{
+        model = multiply(T, S);
+    }
 
     const transforma = multiply(proj, multiply(view, model));
 
@@ -191,6 +213,7 @@ function enviarIluminacao() {
 
 function draw() {
     updateMovement();
+    tempoAnimacao += 0.02;
 
     const { proj, view } = getViewProjection(gl.canvas);
     const modelIdentity = [
