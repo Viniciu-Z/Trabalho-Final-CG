@@ -3,7 +3,7 @@ import { sala, objetos, criarSala } from "./cenario.js";
 import { getViewProjection, camera } from "./camera.js";
 import { initInput, updateMovement } from "./input.js";
 import { loadTexture } from "./Texture.js";
-import { multiply, translation } from "./math.js";
+import { multiply, translation, scaling, rotationX } from "./math.js";
 import { loadOBJ } from "./OBJLoader.js"; // Mantido loadOBJ para uso interno
 
 let gl;
@@ -23,14 +23,30 @@ const lightColor = [1.0, 1.0, 1.0];
 // Dicionário/Lista Central de Objetos do Cenário
 const listaDeModelos = [
     {
-        path: "obj/Alien.obj",
-        position: [0, 2, 0],
-        color: [1.0, 0.0, 0.0, 1.0]
-    },
-    {
-        path: "obj/cube.obj",
-        position: [5, 0, -5],
-        texturePath: "img/madeira.jpeg"
+        path: "obj/Skull.obj",
+        position: [0, 10, 0],
+        scale: [0.5, 0.5, 0.5],
+        texturePath: "img/T_Skull_Albedo.png"
+    },{
+        path: "obj/mammoth.obj",
+        position: [30, 2, 5],
+        scale: [4, 4, 4],
+        texturePath: "img/mammoth.png"
+    },{
+        path: "obj/dinosaur.obj",
+        position: [-30, 2, 80],
+        scale: [10, 10, 10],
+        color: [1, 1, 1, 1]
+    },{
+        path: "obj/torso_bronze.obj",
+        position: [30, 2, -80],
+        scale: [5, 5, 5],
+        texturePath: "img/torso_bronze.jpeg"
+    },{
+        path: "obj/sword.obj",
+        position: [-30, 10, -80],
+        scale: [5, 5, 5],
+        color: [0.0, 0.61, 0.43, 1.0]
     }
 ];
 
@@ -45,6 +61,7 @@ async function carregarModelosCenario(gl, lista) {
         
         // Aplica transformações e propriedades base
         obj.position = config.position || [0, 0, 0];
+        obj.scale = config.scale || [1, 1, 1];
         
         // Trata textura ou cor sólida de forma exclusiva
         if (config.texturePath) {
@@ -86,11 +103,19 @@ function configurarAtributos() {
 function desenharOBJ(obj) {
     const { proj, view } = getViewProjection(gl.canvas);
 
-    const model = translation(
+    const T = translation(
         obj.position[0],
         obj.position[1],
         obj.position[2]
     );
+
+    const S = scaling(
+        obj.scale[0],
+        obj.scale[1],
+        obj.scale[2]
+    );
+
+    const model = multiply(T, S);
 
     const transforma = multiply(proj, multiply(view, model));
 

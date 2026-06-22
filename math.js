@@ -28,6 +28,15 @@ export function translation(tx, ty, tz){
     ];
 }
 
+export function scaling(sx, sy, sz){
+    return [
+        sx,0,0,0,
+        0,sy,0,0,
+        0,0,sz,0,
+        0,0,0,1
+    ];
+}
+
 // Matrizes 4x4
 
 export function identity(){
