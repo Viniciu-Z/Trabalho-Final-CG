@@ -2,6 +2,7 @@ import {perspective, lookAt} from "./math.js";
 
 export const camera = {
     pos: [-20, 5, 0],
+    front:[1,0,0],
     yaw: 0,
     pitch: 0,
     target: [5, 5, 0],
@@ -26,6 +27,8 @@ export function updateTarget()
     const x = Math.cos(pitch) * Math.cos(yaw);
     const y = Math.sin(pitch);
     const z = Math.cos(pitch) * Math.sin(yaw);
+
+    camera.front = [x, y, z];
 
     camera.target = [
         camera.pos[0] + x,

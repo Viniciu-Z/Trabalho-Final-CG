@@ -21,14 +21,15 @@ const modelos = [];
 const lightPos = [0, 25, 0];
 const lightDirection = [0, -1, 0];
 const lightColor = [1.0, 1.0, 1.0];
+const ambientColor = [0.35, 0.35, 0.35];
 
 // Dicionário/Lista Central de Objetos do Cenário
 const listaDeModelos = [
     {
         path: "obj/Skull.obj",
-        position: [0, 10, 0],
-        scale: [0.5, 0.5, 0.5],
-        texturePath: "img/T_Skull_Albedo.png"
+        position: [0, 7, 0],
+        scale: [0.25, 0.25, 0.25],
+        texturePath: "img/T_Skull_AO.png"
     },{
         path: "obj/mammoth.obj",
         position: [30, 2, 5],
@@ -119,17 +120,8 @@ function desenharOBJ(obj) {
         rotacao = rotationY(tempoAnimacao);
     }
 
-    const T = translation(
-        posicao[0],
-        posicao[1],
-        posicao[2]
-    );
-
-    const S = scaling(
-        obj.scale[0],
-        obj.scale[1],
-        obj.scale[2]
-    );
+    const T = translation(posicao[0], posicao[1], posicao[2]);
+    const S = scaling(obj.scale[0], obj.scale[1], obj.scale[2]);
 
     let model;
 
@@ -139,13 +131,9 @@ function desenharOBJ(obj) {
         model = multiply(T, S);
     }
 
-    const transforma = multiply(proj, multiply(view, model));
-
-    gl.uniformMatrix4fv(
-        gl.getUniformLocation(prog, "transf"),
-        false,
-        new Float32Array(transforma)
-    );
+    gl.uniformMatrix4fv(gl.getUniformLocation(prog, "projection"), false, new Float32Array(proj));
+    gl.uniformMatrix4fv(gl.getUniformLocation(prog, "view"), false, new Float32Array(view));
+    gl.uniformMatrix4fv(gl.getUniformLocation(prog, "model"), false, new Float32Array(model));
 
     gl.bindBuffer(gl.ARRAY_BUFFER, obj.buffer);
     configurarAtributos();
@@ -204,11 +192,15 @@ async function init() {
     draw();
 }
 
-function enviarIluminacao() {
-    gl.uniform3fv(gl.getUniformLocation(prog, "lightpos"), new Float32Array(lightPos));
-    gl.uniform3fv(gl.getUniformLocation(prog, "lightDirection"), new Float32Array(lightDirection));
-    gl.uniform3fv(gl.getUniformLocation(prog, "lightColor"), new Float32Array(lightColor));
-    gl.uniform3fv(gl.getUniformLocation(prog, "campos"), new Float32Array(camera.pos));
+function enviarIluminacao()
+{
+    gl.uniform3fv(gl.getUniformLocation(prog,"lightpos"), camera.pos);
+    gl.uniform3fv(gl.getUniformLocation(prog,"lightDirection"), camera.front);
+    gl.uniform3fv(gl.getUniformLocation(prog,"campos"), camera.pos);
+    gl.uniform3fv(gl.getUniformLocation(prog,"lightColor"), [1,1,1]);
+    gl.uniform3fv(gl.getUniformLocation(prog,"ambientColor"), ambientColor);
+    gl.uniform1f(gl.getUniformLocation(prog,"cutOff"), Math.cos(15*Math.PI/180));
+    gl.uniform1f(gl.getUniformLocation(prog,"outerCutOff"), Math.cos(20*Math.PI/180));
 }
 
 function draw() {
@@ -223,8 +215,9 @@ function draw() {
         0, 0, 0, 1
     ];
 
-    const transforma = multiply(proj, multiply(view, modelIdentity));
-    gl.uniformMatrix4fv(gl.getUniformLocation(prog, "transf"), false, new Float32Array(transforma));
+    gl.uniformMatrix4fv(gl.getUniformLocation(prog, "projection"), false, new Float32Array(proj));
+    gl.uniformMatrix4fv(gl.getUniformLocation(prog, "view"), false, new Float32Array(view));
+    gl.uniformMatrix4fv(gl.getUniformLocation(prog, "model"), false, new Float32Array(modelIdentity));
 
     enviarIluminacao();
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
