@@ -1,48 +1,61 @@
-export function getGL(canvas)
-{
-    let gl = canvas.getContext("webgl");
+// Obtém o contexto WebGL do canvas
+export function getGL(canvas) {
+    const gl =
+        canvas.getContext("webgl") ||
+        canvas.getContext("experimental-webgl");
 
-    if(gl)
-        return gl;
-    gl = canvas.getContext("experimental-webgl");
+    if (!gl) {
+        alert("WebGL não suportado.");
+        return null;
+    }
 
-    if(gl)
-        return gl;
-
-    alert("WebGL não suportado.");
-    return null;
+    return gl;
 }
 
-export function createShader(gl, shaderType, shaderSrc)
-{
-    const shader = gl.createShader(shaderType);
+// Cria e compila um shader
+export function createShader(gl, type, source) {
+    const shader = gl.createShader(type);
 
-    gl.shaderSource(shader, shaderSrc);
+    gl.shaderSource(shader, source);
     gl.compileShader(shader);
 
-    if(gl.getShaderParameter(shader, gl.COMPILE_STATUS))
-        return shader;
+    const compiled = gl.getShaderParameter(
+        shader,
+        gl.COMPILE_STATUS
+    );
 
-    console.error(gl.getShaderInfoLog(shader));
-    gl.deleteShader(shader);
+    if (!compiled) {
+        console.error("Erro ao compilar shader:");
+        console.error(gl.getShaderInfoLog(shader));
 
-    return null;
+        gl.deleteShader(shader);
+        return null;
+    }
+
+    return shader;
 }
 
-export function createProgram(gl, vtxShader, fragShader)
-{
-    const prog = gl.createProgram();
+// Cria e linka um programa WebGL
+export function createProgram(gl, vertexShader, fragmentShader) {
+    const program = gl.createProgram();
 
-    gl.attachShader(prog, vtxShader);
-    gl.attachShader(prog, fragShader);
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
 
-    gl.linkProgram(prog);
+    gl.linkProgram(program);
 
-    if(gl.getProgramParameter(prog, gl.LINK_STATUS))
-        return prog;
+    const linked = gl.getProgramParameter(
+        program,
+        gl.LINK_STATUS
+    );
 
-    console.error(gl.getProgramInfoLog(prog));
-    gl.deleteProgram(prog);
+    if (!linked) {
+        console.error("Erro ao linkar programa:");
+        console.error(gl.getProgramInfoLog(program));
 
-    return null;
+        gl.deleteProgram(program);
+        return null;
+    }
+
+    return program;
 }

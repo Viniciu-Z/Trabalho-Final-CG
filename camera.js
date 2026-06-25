@@ -5,22 +5,19 @@ export const camera = {
     front:[1,0,0],
     yaw: 0,
     pitch: 0,
-    target: [5, 5, 0],
     up: [0, 1, 0],
     speed: 0.5
 };
 
-export function getViewProjection(canvas)
-{
+export function getViewProjection(canvas){
     const proj = perspective(45, canvas.width/canvas.height, 0.1, 100);
-
+    
     const view = lookAt(camera.pos, camera.target, camera.up);
 
     return {proj, view};
 }
 
-export function updateTarget()
-{
+export function updateTarget(){
     const yaw = camera.yaw * Math.PI / 180;
     const pitch = camera.pitch * Math.PI / 180;
 

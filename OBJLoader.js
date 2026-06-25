@@ -1,5 +1,5 @@
-import { translation } from "./math.js";
-import { loadTexture } from "./Texture.js";
+import {translation} from "./math.js";
+import {loadTexture} from "./Texture.js";
 
 export async function loadOBJ(gl, caminho){
     const resposta = await fetch(caminho);
@@ -8,13 +8,11 @@ export async function loadOBJ(gl, caminho){
     const posicoes = [];
     const texCoords = [];
     const normais = [];
-
     const vertices = [];
 
     const linhas = texto.split("\n");
 
-    for (let linha of linhas)
-    {
+    for (let linha of linhas){
         linha = linha.trim();
 
         if (linha.length === 0 || linha.startsWith("#"))
@@ -22,8 +20,7 @@ export async function loadOBJ(gl, caminho){
 
         const partes = linha.split(/\s+/);
 
-        switch (partes[0])
-        {
+        switch (partes[0]){
             // Vértices
             case "v":
                 posicoes.push([
@@ -90,10 +87,8 @@ export async function loadOBJ(gl, caminho){
     const buffer = gl.createBuffer();
 
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices),gl.STATIC_DRAW);
 
-    // ... final do arquivo OBJLoader.js ...
     return {
         buffer,
         vertices,
@@ -103,7 +98,6 @@ export async function loadOBJ(gl, caminho){
         rotation: [0,0,0],
         scale: [1,1,1],
 
-        // Simplificado: propriedades direto na raiz do objeto
         texture: null,
         color: [1, 1, 1, 1] 
     };
@@ -117,7 +111,6 @@ export async function loadOBJ(gl, caminho){
 
     function adicionarVertice(indice){
         const dados = indice.split("/");
-
         const v = posicoes[parseInt(dados[0]) - 1];
 
         let vt = [0,0];

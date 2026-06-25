@@ -17,13 +17,13 @@ let tempoAnimacao = 0;
 
 const modelos = [];
 
-// Configurações de Iluminação
+// Iluminação
 const lightPos = [0, 25, 0];
 const lightDirection = [0, -1, 0];
 const lightColor = [1.0, 1.0, 1.0];
 const ambientColor = [0.35, 0.35, 0.35];
 
-// Dicionário/Lista Central de Objetos do Cenário
+// Objetos do cenario
 const listaDeModelos = [
     {
         path: "obj/Skull.obj",
@@ -49,13 +49,12 @@ const listaDeModelos = [
         path: "obj/sword.obj",
         position: [-30, 10, -80],
         scale: [5, 5, 5],
-        color: [0.0, 0.61, 0.43, 1.0]
+        color: [0.35, 0.95, 0.75, 1.0]
     }
 ];
 
-/**
- * Carrega e configura sequencialmente a lista de modelos do cenário.
- */
+
+// Carrega e configura sequencialmente a lista de modelos do cenário.
 async function carregarModelosCenario(gl, lista) {
     const carregados = [];
     
@@ -110,13 +109,10 @@ function desenharOBJ(obj) {
     let posicao = [...obj.position];
     let rotacao = null;
 
-    // Apenas a Skull será animada
+    // Animação para o obj Skull
     if (obj.path && obj.path.includes("Skull")) {
 
-        // movimento de sobe e desce
         posicao[1] += Math.sin(tempoAnimacao) * 0.4;
-
-        // rotação contínua
         rotacao = rotationY(tempoAnimacao);
     }
 
@@ -161,17 +157,17 @@ async function init() {
 
     if (!gl) return;
 
-    // Inicialização de Shaders e Programa
+    // Inicialização de shaders e programas
     const vtxShader = createShader(gl, gl.VERTEX_SHADER, document.getElementById("vertex-shader").text);
     const fragShader = createShader(gl, gl.FRAGMENT_SHADER, document.getElementById("frag-shader").text);
     prog = createProgram(gl, vtxShader, fragShader);
     gl.useProgram(prog);
 
-    // Construção do Cenário Estático
+    // Cenario
     criarSala(50, 30, 100);
-    wallTexture = loadTexture(gl, "img/madeira.jpeg");
+    wallTexture = loadTexture(gl, "img/Cinza.jpg");
 
-    // Inicialização de Buffers Fixos
+    // Inicialização de buffers
     bufferSala = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferSala);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(sala.vertices), gl.STATIC_DRAW);
@@ -180,11 +176,11 @@ async function init() {
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferObjetos);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objetos.vertices), gl.STATIC_DRAW);
 
-    // Carregamento Dinâmico de Modelos Complexos (OBJ)
+    // Carregamento de modelos obj
     const modelosCarregados = await carregarModelosCenario(gl, listaDeModelos);
     modelos.push(...modelosCarregados);
 
-    // Configurações Globais do WebGL e Input
+    // Globais webgl e input
     gl.enable(gl.DEPTH_TEST);
     gl.clearColor(0.1, 0.1, 0.1, 1);
     initInput(canvas);
@@ -192,8 +188,7 @@ async function init() {
     draw();
 }
 
-function enviarIluminacao()
-{
+function enviarIluminacao(){
     gl.uniform3fv(gl.getUniformLocation(prog,"lightpos"), camera.pos);
     gl.uniform3fv(gl.getUniformLocation(prog,"lightDirection"), camera.front);
     gl.uniform3fv(gl.getUniformLocation(prog,"campos"), camera.pos);
@@ -222,7 +217,7 @@ function draw() {
     enviarIluminacao();
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // 1. Renderização da Sala
+    // Renderização da Sala
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferSala);
     configurarAtributos();
     gl.activeTexture(gl.TEXTURE0);
@@ -231,14 +226,14 @@ function draw() {
     gl.uniform1i(gl.getUniformLocation(prog, "usarTextura"), 1);
     gl.drawArrays(gl.TRIANGLES, 0, sala.quantidadeVertices);
 
-    // 2. Renderização dos Pedestais (Objetos da Sala)
+    // Renderização dos Pedestais 
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferObjetos);
     configurarAtributos();
     gl.uniform1i(gl.getUniformLocation(prog, "usarTextura"), 0);
     gl.uniform4fv(gl.getUniformLocation(prog, "objectColor"), new Float32Array([1.0, 1.0, 1.0, 1.0]));
     gl.drawArrays(gl.TRIANGLES, 0, objetos.quantidadeVertices);
 
-    // 3. Renderização dos Modelos Dinâmicos/Lista
+    // Renderização dos obj
     for (const obj of modelos) {
         desenharOBJ(obj);
     }

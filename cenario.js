@@ -1,15 +1,10 @@
-export const sala = {
-    vertices: [],
-    quantidadeVertices: 0
-};
+export const sala = {vertices: [], quantidadeVertices: 0};
+export const objetos = {vertices: [], quantidadeVertices: 0};
 
-export const objetos = {
-    vertices: [],
-    quantidadeVertices: 0
-};
+// Guarda as informações necessarias para colisão
+export const pedestais = [];
 
-function face(a, b, c, d, normal, cor)
-{
+function face(a, b, c, d, normal, cor){
     return [
         ...a, ...cor, 0,1, ...normal,
         ...b, ...cor, 1,1, ...normal,
@@ -21,8 +16,7 @@ function face(a, b, c, d, normal, cor)
     ];
 }
 
-export function adicionarParalelepipedo(largura, altura, comprimento, x, y, z, cor)
-{
+export function adicionarParalelepipedo(largura, altura, comprimento, x, y, z, cor){
     const lx = largura / 2;
     const lz = comprimento / 2;
 
@@ -36,7 +30,6 @@ export function adicionarParalelepipedo(largura, altura, comprimento, x, y, z, c
     const z1 = z + lz;
 
     objetos.vertices.push(
-
         // Piso
         ...face(
             [x0,y0,z0],
@@ -97,10 +90,11 @@ export function adicionarParalelepipedo(largura, altura, comprimento, x, y, z, c
             cor
         )
     );
+
+    pedestais.push({x, z, largura, comprimento});
 }
 
-export function criarSala(largura, altura, comprimento)
-{
+export function criarSala(largura, altura, comprimento){
     const x = largura;
     const y = altura;
     const z = comprimento;

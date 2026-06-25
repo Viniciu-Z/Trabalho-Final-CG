@@ -37,8 +37,6 @@ export function scaling(sx, sy, sz){
     ];
 }
 
-// Matrizes 4x4
-
 export function identity(){
     return [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
 }
@@ -95,8 +93,7 @@ export function rotationX(angle){
     ];
 }
 
-export function rotationY(angle)
-{
+export function rotationY(angle){
     const c = Math.cos(angle);
     const s = Math.sin(angle);
 
@@ -108,8 +105,7 @@ export function rotationY(angle)
     ];
 }
 
-export function rotationZ(angle)
-{
+export function rotationZ(angle){
     const c = Math.cos(angle);
     const s = Math.sin(angle);
 
