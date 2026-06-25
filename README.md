@@ -40,7 +40,7 @@ conhecer mais sobre as obras em exibição.
 - O cenário foi construído manualmente no código, não foram usados modelos externos a não ser para as exibições
 
 ## Vídeo
-**Link do Repósitorio:** https://github.com/Viniciu-Z/Trabalho-Final-CG.git
+**Link do Repósitorio:** https://github.com/Viniciu-Z/Museu-Noturno-CG.git
 
 https://github.com/user-attachments/assets/0f568665-1701-4e0c-b613-5c7ac262b922
 
